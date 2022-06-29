@@ -88,6 +88,11 @@ func GetCpf(c *gin.Context) {
 	cpf := c.Param("id")
 	database.DB.Where(&models.Aluno{CPF: cpf}).First(&aluno)
 
+	if aluno.ID == 0 {
+		c.JSON(404, aluno)
+		return
+	}
+
 	c.JSON(200, aluno)
 }
 

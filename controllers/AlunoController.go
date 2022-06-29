@@ -16,6 +16,11 @@ func New(c *gin.Context) {
 		})
 		return
 	}
+	if err := models.ValidaDadosAluno(&aluno); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
 	database.DB.Create(&aluno)
 	c.JSON(http.StatusOK, aluno)
 }
@@ -68,6 +73,11 @@ func Edit(c *gin.Context) {
 		})
 		return
 	}
+	if err := models.ValidaDadosAluno(&aluno); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
 	database.DB.Updates(&aluno)
 
 	c.JSON(200, aluno)
@@ -75,7 +85,7 @@ func Edit(c *gin.Context) {
 
 func GetCpf(c *gin.Context) {
 	var aluno models.Aluno
-	cpf := c.Param("cpf")
+	cpf := c.Param("id")
 	database.DB.Where(&models.Aluno{CPF: cpf}).First(&aluno)
 
 	c.JSON(200, aluno)

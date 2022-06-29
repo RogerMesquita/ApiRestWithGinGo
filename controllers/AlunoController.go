@@ -92,7 +92,7 @@ func GetCpf(c *gin.Context) {
 }
 
 func Saudacao(c *gin.Context) {
-	nome := c.Params.ByName("nome")
+	nome := c.Params.ByName("id")
 
 	c.JSON(200, gin.H{
 		"Api Diz: ": "Eai" + nome + ",tudo belexa?",

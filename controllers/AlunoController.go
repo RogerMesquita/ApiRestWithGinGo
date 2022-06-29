@@ -20,8 +20,26 @@ func New(c *gin.Context) {
 	c.JSON(http.StatusOK, aluno)
 }
 
-func ExibeTodosAlunos(c *gin.Context) {
-	c.JSON(200, models.Alunos)
+func ListAll(c *gin.Context) {
+	var alunos []models.Aluno
+
+	database.DB.Find(&alunos)
+	c.JSON(200, alunos)
+}
+
+func FindId(c *gin.Context) {
+	id := c.Params.ByName("id")
+	aluno := models.Aluno{}
+	database.DB.First(&aluno, id)
+
+	if aluno.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"Not Found": "Aluno nao encontrado",
+		})
+		return
+	}
+
+	c.JSON(200, aluno)
 }
 
 func Saudacao(c *gin.Context) {

@@ -48,16 +48,11 @@ func FindId(c *gin.Context) {
 }
 
 func Delete(c *gin.Context) {
-	id := c.Params.ByName("id")
 	var aluno models.Aluno
-	database.DB.Delete(&aluno, id)
 
-	if aluno.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{
-			"Not Found": "Aluno nao encontrado",
-		})
-		return
-	}
+	id := c.Params.ByName("id")
+
+	database.DB.Delete(&aluno, id)
 
 	c.JSON(200, aluno)
 }

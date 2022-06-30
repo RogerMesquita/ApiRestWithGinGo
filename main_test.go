@@ -4,13 +4,17 @@ import (
 	"ApiRestWithGinGo/controllers"
 	"ApiRestWithGinGo/database"
 	"ApiRestWithGinGo/models"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 )
+
+var ID int
 
 func SetupTestRoutes() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
@@ -72,8 +76,37 @@ func TestFindForCpf(t *testing.T) {
 	r.ServeHTTP(response, req)
 	assert.Equal(t, http.StatusOK, response.Code)
 }
+func TestFindForId(t *testing.T) {
+	database.ConnectBd()
+	CreateAlunoMock()
+	defer DeleteAlunoMock()
+	r := SetupTestRoutes()
+	r.GET("/alunos/:id/view", controllers.FindId)
+	path := "/alunos/" + strconv.Itoa(ID) + "/view"
 
-var ID int
+	req, _ := http.NewRequest("GET", path, nil)
+	response := httptest.NewRecorder()
+
+	r.ServeHTTP(response, req)
+	var alunoMock models.Aluno
+
+	json.Unmarshal(response.Body.Bytes(), &alunoMock)
+
+	assert.Equal(t, "Nome do Aluno Teste", alunoMock.Nome)
+}
+
+func TestDeleteAluno(t *testing.T) {
+	database.ConnectBd()
+	CreateAlunoMock()
+	r := SetupTestRoutes()
+	r.DELETE("/alunos/:id/delete", controllers.Delete)
+	path := "/alunos/" + strconv.Itoa(ID) + "/delete"
+	req, _ := http.NewRequest("DELETE", path, nil)
+	response := httptest.NewRecorder()
+
+	r.ServeHTTP(response, req)
+	assert.Equal(t, http.StatusOK, response.Code)
+}
 
 func CreateAlunoMock() {
 	aluno := models.Aluno{Nome: "Nome do Aluno Teste", CPF: "12345678901", RG: "123456789"}

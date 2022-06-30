@@ -4,6 +4,7 @@ import (
 	"ApiRestWithGinGo/controllers"
 	"ApiRestWithGinGo/database"
 	"ApiRestWithGinGo/models"
+	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -106,6 +107,26 @@ func TestDeleteAluno(t *testing.T) {
 
 	r.ServeHTTP(response, req)
 	assert.Equal(t, http.StatusOK, response.Code)
+}
+
+func TestEditAluno(t *testing.T) {
+	database.ConnectBd()
+	CreateAlunoMock()
+	r := SetupTestRoutes()
+	defer DeleteAlunoMock()
+	r.POST("/alunos/:id/edit", controllers.Edit)
+	aluno := models.Aluno{Nome: "Nome do Aluno Teste editado", CPF: "12345678903", RG: "123456710"}
+	jsonValue, _ := json.Marshal(aluno)
+	path := "/alunos/" + strconv.Itoa(ID) + "/edit"
+	req, _ := http.NewRequest("POST", path, bytes.NewBuffer(jsonValue))
+	response := httptest.NewRecorder()
+
+	r.ServeHTTP(response, req) // faz a chamada de fato no server
+
+	alunoMock := models.Aluno{}
+	json.Unmarshal(response.Body.Bytes(), &alunoMock)
+	assert.Equal(t, "12345678903", alunoMock.CPF)
+
 }
 
 func CreateAlunoMock() {
